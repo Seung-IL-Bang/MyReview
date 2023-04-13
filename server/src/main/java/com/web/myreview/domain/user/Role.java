@@ -11,6 +11,6 @@ public enum Role {
     GUEST("ROLE_GUEST", "게스트"),
     USER("ROLE_USER", "회원");
 
-    private final String key;
+    private final String authorization;
     private final String title;
 }
