@@ -1,6 +1,16 @@
 spring:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
   datasource:
-    url: jdbc:mysql://localhost:3306/my_review
     driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/my_review?serverTimezone=Asia/Seoul&createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=UTF-8
     username: root
     password:
+  profiles:
+    include: oauth
+#  h2:
+#    console:
+#      enabled: true
+#  datasource:
+#    url: jdbc:h2:mem:test
