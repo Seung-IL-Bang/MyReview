@@ -1,6 +1,8 @@
 package com.web.myreview.config.auth;
 
+import com.web.myreview.config.handler.OAuth2UserSuccessHandler;
 import com.web.myreview.domain.user.Role;
+import com.web.myreview.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,7 +26,7 @@ import java.util.Arrays;
 @EnableWebSecurity
 public class SecurityConfig  {
 
-    private final CustomOAuth2UserService customOAuth2UserService;
+    private final UserRepository userRepository;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -32,6 +34,8 @@ public class SecurityConfig  {
                 .cors().configurationSource(corsConfigurationSource())
                 .and()
                 .csrf().disable()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
                 .formLogin().disable()
                 .httpBasic().disable()
                 .authorizeHttpRequests(authz -> authz
@@ -40,9 +44,7 @@ public class SecurityConfig  {
                 .exceptionHandling()
                 .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
                 .and()
-                .logout().logoutSuccessUrl("/")
-                .and()
-                .oauth2Login().userInfoEndpoint().userService(customOAuth2UserService);
+                .oauth2Login(oauth2 -> oauth2.successHandler(new OAuth2UserSuccessHandler(userRepository)));
 
         return http.build();
     }

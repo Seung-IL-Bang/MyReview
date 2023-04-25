@@ -4,56 +4,51 @@ import com.web.myreview.domain.user.Role;
 import com.web.myreview.domain.user.User;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.Map;
 
 @Getter
 public class OAuthAttributes {
 
-    private Map<String, Object> attributes;
-    private String nameAttributeKey;
+    private OAuth2User oAuth2User;
     private String name;
     private String email;
     private String picture;
 
     @Builder
-    public OAuthAttributes(Map<String, Object> attributes, String nameAttributeKey, String name, String email, String picture) {
-        this.attributes = attributes;
-        this.nameAttributeKey = nameAttributeKey;
+    public OAuthAttributes(OAuth2User oAuth2User, String name, String email, String picture) {
+        this.oAuth2User = oAuth2User;
         this.name = name;
         this.email = email;
         this.picture = picture;
     }
 
     public static OAuthAttributes of(String registrationId,
-                                     String userNameAttributeName,
-                                     Map<String, Object> attributes) {
+                                     OAuth2User oAuth2User) {
         if ("kakao".equals(registrationId)) {
-            return ofKakao(attributes);
+            return ofKakao(oAuth2User);
         }
-        return ofGoogle(userNameAttributeName, attributes);
+        return ofGoogle(oAuth2User);
     }
 
-    private static OAuthAttributes ofGoogle(String userNameAttributeName, Map<String, Object> attributes) {
+    private static OAuthAttributes ofGoogle(OAuth2User oAuth2User) {
+
         return OAuthAttributes.builder()
-                .name((String) attributes.get("name"))
-                .email((String) attributes.get("email"))
-                .picture((String) attributes.get("picture"))
-                .attributes(attributes)
-                .nameAttributeKey(userNameAttributeName)
+                .name(oAuth2User.getAttributes().get("name").toString())
+                .email(oAuth2User.getAttributes().get("email").toString())
+                .picture(oAuth2User.getAttributes().get("picture").toString())
                 .build();
     }
 
-    private static OAuthAttributes ofKakao(Map<String, Object> attributes) {
-        Map<String, Object> properties = (Map<String, Object>) attributes.get("properties");
-        Map<String, Object> account = (Map<String, Object>) attributes.get("kakao_account");
+    private static OAuthAttributes ofKakao(OAuth2User oAuth2User) {
+        Map<String, Object> properties = (Map<String, Object>) oAuth2User.getAttributes().get("properties");
+        Map<String, Object> account = (Map<String, Object>) oAuth2User.getAttributes().get("kakao_account");
 
         return OAuthAttributes.builder()
-                .name((String) properties.get("nickname"))
-                .email((String) account.get("email"))
-                .picture((String) properties.get("profile_image"))
-                .attributes(attributes)
-                .nameAttributeKey("id")
+                .name(properties.get("nickname").toString())
+                .email(account.get("email").toString())
+                .picture(properties.get("profile_image").toString())
                 .build();
     }
 
